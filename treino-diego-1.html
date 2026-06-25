@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Diego · Treino</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0A0A0A;
+    --surface: #141414;
+    --card: #1C1C1E;
+    --border: #2C2C2E;
+    --accent: #C8F135;
+    --accent-dim: rgba(200,241,53,0.12);
+    --accent-glow: rgba(200,241,53,0.25);
+    --text: #F5F5F5;
+    --text-2: #A1A1AA;
+    --text-3: #52525B;
+    --danger: #FF6B6B;
+    --warning: #FFB347;
+    --success: #C8F135;
+    --blue: #60A5FA;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    background: var(--black);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── SPLASH ── */
+  #splash {
+    position: fixed; inset: 0; background: var(--black);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    z-index: 999; gap: 16px;
+    transition: opacity 0.5s ease;
+  }
+  #splash.hide { opacity: 0; pointer-events: none; }
+  .splash-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 48px; color: var(--accent); line-height: 1;
+  }
+  .splash-sub { font-size: 13px; color: var(--text-2); letter-spacing: 0.15em; text-transform: uppercase; }
+  .splash-dot-row { display: flex; gap: 6px; margin-top: 24px; }
+  .splash-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); }
+  .splash-dot.a { background: var(--accent); animation: blink 1s 0s infinite; }
+  .splash-dot:nth-child(2) { animation: blink 1s 0.2s infinite; }
+  .splash-dot:nth-child(3) { animation: blink 1s 0.4s infinite; }
+  @keyframes blink { 0%,100%{opacity:0.3} 50%{opacity:1} }
+
+  /* ── LAYOUT ── */
+  #app { display: none; flex-direction: column; min-height: 100vh; }
+  #app.visible { display: flex; }
+
+  /* ── HEADER ── */
+  .top-bar {
+    padding: 56px 20px 20px;
+    background: linear-gradient(180deg, #141414 0%, transparent 100%);
+    position: sticky; top: 0; z-index: 100;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .top-bar-inner { display: flex; align-items: center; justify-content: space-between; }
+  .brand { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--accent); }
+  .avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--accent); color: var(--black);
+    font-weight: 700; font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+
+  /* ── NAV TABS ── */
+  .nav-tabs {
+    display: flex; gap: 0;
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 4px; margin: 0 20px 20px;
+    border: 1px solid var(--border);
+  }
+  .nav-tab {
+    flex: 1; text-align: center; padding: 10px 4px;
+    font-size: 12px; font-weight: 500; color: var(--text-2);
+    border-radius: 9px; cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.01em;
+  }
+  .nav-tab.active { background: var(--accent); color: var(--black); font-weight: 700; }
+
+  /* ── MAIN CONTENT ── */
+  .content { flex: 1; padding: 0 20px 100px; }
+
+  /* ── SECTION TITLES ── */
+  .section-label {
+    font-size: 11px; font-weight: 600; color: var(--text-3);
+    letter-spacing: 0.12em; text-transform: uppercase;
+    margin-bottom: 12px; margin-top: 28px;
+  }
+
+  /* ── PAGE ── */
+  .page { display: none; animation: fadeIn 0.3s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+
+  /* ── PROFILE CARD ── */
+  .profile-hero {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 16px;
+    position: relative; overflow: hidden;
+  }
+  .profile-hero::before {
+    content: '';
+    position: absolute; top: -40px; right: -40px;
+    width: 160px; height: 160px;
+    background: var(--accent-dim);
+    border-radius: 50%;
+  }
+  .profile-name { font-family: 'DM Serif Display', serif; font-size: 28px; line-height: 1.1; margin-bottom: 4px; }
+  .profile-name em { font-style: italic; color: var(--accent); }
+  .profile-age { font-size: 13px; color: var(--text-2); margin-bottom: 20px; }
+  .profile-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .stat-box { text-align: center; }
+  .stat-val { font-size: 22px; font-weight: 700; color: var(--text); }
+  .stat-val span { font-size: 13px; font-weight: 400; color: var(--text-2); }
+  .stat-lbl { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+
+  .measures-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .measure-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 14px;
+  }
+  .measure-card .lbl { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .measure-card .val { font-size: 20px; font-weight: 600; }
+  .measure-card .unit { font-size: 12px; color: var(--text-2); }
+
+  /* ── OBJECTIVE BANNER ── */
+  .obj-banner {
+    background: linear-gradient(135deg, var(--accent-dim), transparent);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 16px; margin-bottom: 24px;
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .obj-icon { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+  .obj-title { font-size: 11px; color: var(--accent); font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; }
+  .obj-text { font-size: 14px; color: var(--text); line-height: 1.4; }
+
+  /* ── TREINO SELECTOR ── */
+  .treino-tabs {
+    display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto;
+    padding-bottom: 4px; scrollbar-width: none;
+  }
+  .treino-tabs::-webkit-scrollbar { display: none; }
+  .treino-tab {
+    flex-shrink: 0;
+    padding: 10px 20px;
+    border-radius: 100px;
+    font-size: 13px; font-weight: 600;
+    background: var(--card); color: var(--text-2);
+    border: 1px solid var(--border);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .treino-tab.active { background: var(--accent); color: var(--black); border-color: var(--accent); }
+
+  /* ── WEEK SELECTOR ── */
+  .week-row {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 12px 16px;
+    margin-bottom: 20px;
+  }
+  .week-label { font-size: 13px; color: var(--text-2); }
+  .week-num { font-size: 18px; font-weight: 700; color: var(--accent); }
+  .week-btn {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--border); border: none; color: var(--text);
+    font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  .week-btn:hover { background: var(--accent); color: var(--black); }
+  .week-btn:disabled { opacity: 0.3; cursor: default; }
+
+  /* ── EXERCISE CARD ── */
+  .exercise-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .exercise-card.done { border-color: var(--accent); }
+  .exercise-card.done .ex-header { background: var(--accent-dim); }
+
+  .ex-header {
+    padding: 16px; display: flex; align-items: center; gap: 12px;
+    cursor: pointer; user-select: none;
+  }
+  .ex-check {
+    width: 26px; height: 26px; border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s; font-size: 13px;
+    cursor: pointer;
+  }
+  .exercise-card.done .ex-check {
+    background: var(--accent); border-color: var(--accent); color: var(--black);
+  }
+  .ex-info { flex: 1; min-width: 0; }
+  .ex-name { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.2; }
+  .ex-meta { font-size: 12px; color: var(--text-2); margin-top: 3px; }
+  .ex-rpe {
+    flex-shrink: 0; padding: 4px 10px; border-radius: 100px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.05em;
+  }
+  .rpe-leve { background: rgba(96,165,250,0.15); color: var(--blue); }
+  .rpe-6 { background: rgba(96,165,250,0.15); color: var(--blue); }
+  .rpe-7 { background: rgba(200,241,53,0.15); color: var(--accent); }
+  .rpe-8 { background: rgba(255,179,71,0.15); color: var(--warning); }
+  .rpe-9 { background: rgba(255,107,107,0.15); color: var(--danger); }
+  .rpe-corpo { background: rgba(161,161,170,0.1); color: var(--text-2); }
+
+  .ex-expand { color: var(--text-3); font-size: 12px; flex-shrink: 0; transition: transform 0.2s; }
+  .exercise-card.open .ex-expand { transform: rotate(180deg); }
+
+  /* ── EXPANDED BODY ── */
+  .ex-body {
+    display: none; padding: 0 16px 16px;
+    border-top: 1px solid var(--border);
+  }
+  .exercise-card.open .ex-body { display: block; }
+
+  .ex-tip-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; margin-bottom: 16px; }
+  .ex-tip {
+    background: var(--surface);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+  }
+  .ex-tip-lbl { font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+  .ex-tip-val { font-size: 12px; color: var(--text-2); line-height: 1.4; }
+  .ex-tip-val.accent { color: var(--accent); font-weight: 500; }
+
+  /* ── LOAD INPUT ── */
+  .load-section { margin-top: 4px; }
+  .load-label { font-size: 12px; color: var(--text-3); margin-bottom: 8px; font-weight: 500; }
+  .load-row { display: flex; gap: 8px; align-items: center; }
+  .load-input {
+    flex: 1; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 10px 14px; color: var(--text);
+    font-size: 15px; font-family: 'Inter', sans-serif;
+    outline: none; transition: border-color 0.2s;
+  }
+  .load-input:focus { border-color: var(--accent); }
+  .load-input::placeholder { color: var(--text-3); }
+  .load-unit { font-size: 12px; color: var(--text-2); font-weight: 500; }
+
+  .series-row { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .serie-badge {
+    padding: 6px 14px; border-radius: 100px;
+    font-size: 12px; font-weight: 600;
+    background: var(--surface); color: var(--text-2);
+    border: 1px solid var(--border);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .serie-badge.done-s { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
+
+  .obs-input {
+    width: 100%; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 10px 14px; color: var(--text);
+    font-size: 13px; font-family: 'Inter', sans-serif;
+    outline: none; resize: none; margin-top: 10px;
+    min-height: 64px; transition: border-color 0.2s;
+  }
+  .obs-input:focus { border-color: var(--accent); }
+  .obs-input::placeholder { color: var(--text-3); }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 20px; }
+  .progress-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .progress-title { font-size: 13px; font-weight: 600; }
+  .progress-pct { font-size: 22px; font-weight: 700; color: var(--accent); }
+  .prog-bar-bg { background: var(--border); border-radius: 100px; height: 6px; overflow: hidden; }
+  .prog-bar-fill { height: 100%; background: var(--accent); border-radius: 100px; transition: width 0.4s ease; }
+
+  /* ── AVALIAÇÃO PAGE ── */
+  .eval-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px; margin-bottom: 12px;
+  }
+  .eval-week-label {
+    font-size: 11px; color: var(--accent); font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px;
+  }
+  .eval-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .eval-field label { font-size: 11px; color: var(--text-3); display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .eval-select {
+    width: 100%; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 10px 12px; color: var(--text);
+    font-size: 13px; font-family: 'Inter', sans-serif;
+    outline: none; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2352525B' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+  }
+  .eval-select option { background: #1C1C1E; }
+
+  .eval-obs { grid-column: 1 / -1; }
+  .eval-obs textarea {
+    width: 100%; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 10px 12px; color: var(--text);
+    font-size: 13px; font-family: 'Inter', sans-serif;
+    outline: none; resize: none; min-height: 60px;
+  }
+
+  /* ── STAR RATING ── */
+  .star-row { display: flex; gap: 4px; }
+  .star { font-size: 22px; cursor: pointer; color: var(--border); transition: color 0.1s; }
+  .star.on { color: var(--accent); }
+
+  /* ── GUIA PAGE ── */
+  .guide-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); margin-bottom: 12px; overflow: hidden;
+  }
+  .guide-header {
+    padding: 16px; display: flex; justify-content: space-between; align-items: center;
+    cursor: pointer;
+  }
+  .guide-name { font-size: 14px; font-weight: 600; }
+  .guide-chevron { color: var(--text-3); font-size: 12px; transition: transform 0.2s; }
+  .guide-card.open .guide-chevron { transform: rotate(180deg); }
+  .guide-body { display: none; padding: 0 16px 16px; border-top: 1px solid var(--border); }
+  .guide-card.open .guide-body { display: block; }
+  .guide-row { margin-top: 12px; }
+  .guide-row-lbl { font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+  .guide-row-val { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+  .guide-row-val.highlight { color: var(--accent); font-weight: 500; }
+
+  /* ── RPE LEGEND ── */
+  .rpe-legend {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px; margin-bottom: 12px;
+  }
+  .rpe-legend-title { font-size: 13px; font-weight: 700; margin-bottom: 14px; }
+  .rpe-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .rpe-item:last-child { border-bottom: none; }
+  .rpe-num { font-size: 18px; font-weight: 700; width: 36px; }
+  .rpe-desc { font-size: 13px; color: var(--text-2); }
+
+  /* ── SAVE BUTTON ── */
+  .save-btn {
+    width: 100%; padding: 16px;
+    background: var(--accent); color: var(--black);
+    font-size: 15px; font-weight: 700;
+    border: none; border-radius: var(--radius-sm);
+    cursor: pointer; margin-top: 20px;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.02em;
+    transition: opacity 0.2s;
+  }
+  .save-btn:active { opacity: 0.8; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+    background: var(--accent); color: var(--black);
+    padding: 12px 24px; border-radius: 100px;
+    font-size: 14px; font-weight: 700;
+    z-index: 500; opacity: 0;
+    transition: opacity 0.3s;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: rgba(20,20,20,0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex; padding: 12px 0 28px;
+    z-index: 200;
+  }
+  .bnav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    cursor: pointer; padding: 4px;
+    color: var(--text-3); font-size: 10px; font-weight: 500;
+    transition: color 0.2s;
+  }
+  .bnav-item.active { color: var(--accent); }
+  .bnav-icon { font-size: 22px; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px; background: var(--border);
+    margin: 20px 0;
+  }
+
+  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .chip {
+    padding: 6px 12px; border-radius: 100px;
+    font-size: 12px; color: var(--text-2);
+    border: 1px solid var(--border);
+    background: var(--card);
+  }
+
+  /* ── MOBILIDADE special ── */
+  .exercise-card.mobilidade { border-color: var(--blue); }
+  .exercise-card.mobilidade .ex-check { border-color: var(--blue); }
+  .exercise-card.mobilidade.done .ex-check { background: var(--blue); border-color: var(--blue); }
+
+  /* ── scroll padding ── */
+  .content { padding-bottom: 120px; }
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-logo">D</div>
+  <div class="splash-sub">Consultoria Esportiva</div>
+  <div class="splash-dot-row">
+    <div class="splash-dot a"></div>
+    <div class="splash-dot"></div>
+    <div class="splash-dot"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="top-bar-inner">
+      <div class="brand">Training.</div>
+      <div class="avatar" onclick="goPage('perfil')">D</div>
+    </div>
+  </div>
+
+  <!-- NAV TABS (top) -->
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="goPage('treino')">Treino</div>
+    <div class="nav-tab" onclick="goPage('avaliacao')">Avaliação</div>
+    <div class="nav-tab" onclick="goPage('guia')">Guia</div>
+    <div class="nav-tab" onclick="goPage('perfil')">Perfil</div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ═══ TREINO PAGE ═══ -->
+    <div class="page active" id="page-treino">
+
+      <!-- Week selector -->
+      <div class="week-row">
+        <div>
+          <div class="week-label">Período de Avaliação</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class="week-btn" id="prev-week" onclick="changeWeek(-1)">‹</button>
+          <div class="week-num" id="week-display">Semana 1</div>
+          <button class="week-btn" id="next-week" onclick="changeWeek(1)">›</button>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="progress-wrap">
+        <div class="progress-head">
+          <div class="progress-title">Progresso do Treino</div>
+          <div class="progress-pct" id="prog-pct">0%</div>
+        </div>
+        <div class="prog-bar-bg"><div class="prog-bar-fill" id="prog-bar" style="width:0%"></div></div>
+      </div>
+
+      <!-- Treino selector -->
+      <div class="treino-tabs">
+        <div class="treino-tab active" onclick="selectTreino('A')">Treino A</div>
+        <div class="treino-tab" onclick="selectTreino('B')">Treino B</div>
+        <div class="treino-tab" onclick="selectTreino('C')">Treino C</div>
+        <div class="treino-tab" onclick="selectTreino('D')">Treino D</div>
+      </div>
+
+      <!-- Exercises container -->
+      <div id="exercises-container"></div>
+
+    </div>
+
+    <!-- ═══ AVALIAÇÃO PAGE ═══ -->
+    <div class="page" id="page-avaliacao">
+      <div class="section-label">Acompanhamento Semanal</div>
+      <div id="eval-weeks-container"></div>
+    </div>
+
+    <!-- ═══ GUIA PAGE ═══ -->
+    <div class="page" id="page-guia">
+      <div class="section-label">Referência de Intensidade</div>
+      <div class="rpe-legend">
+        <div class="rpe-legend-title">Escala RPE</div>
+        <div class="rpe-item"><span class="rpe-num" style="color:var(--blue)">6</span><span class="rpe-desc">Confortável — consegue conversar tranquilo</span></div>
+        <div class="rpe-item"><span class="rpe-num" style="color:var(--accent)">7</span><span class="rpe-desc">Moderadamente difícil — foco necessário</span></div>
+        <div class="rpe-item"><span class="rpe-num" style="color:var(--warning)">8</span><span class="rpe-desc">Difícil, mas com margem — últimas reps pesadas</span></div>
+        <div class="rpe-item"><span class="rpe-num" style="color:var(--danger)">9</span><span class="rpe-desc">Quase no limite — 1 rep sobrando</span></div>
+        <div class="rpe-item"><span class="rpe-num" style="color:var(--danger)">10</span><span class="rpe-desc">Esforço máximo — falha total</span></div>
+      </div>
+
+      <div class="section-label">Dica Geral</div>
+      <div class="eval-card" style="margin-bottom:16px">
+        <div style="font-size:13px;color:var(--text-2);line-height:1.6">
+          Mantenha a <span style="color:var(--accent);font-weight:600">respiração controlada</span> para contração do abdômen — isso melhora a maioria dos movimentos. Inspira na fase excêntrica, expira na concentração.
+        </div>
+      </div>
+
+      <div class="section-label">Exercícios — Como Fazer</div>
+      <div id="guide-container"></div>
+    </div>
+
+    <!-- ═══ PERFIL PAGE ═══ -->
+    <div class="page" id="page-perfil">
+
+      <div class="profile-hero">
+        <div class="profile-name">Diego<br><em>de Sousa</em></div>
+        <div class="profile-age">36 anos · Consultoria Personalizada</div>
+        <div class="profile-stats">
+          <div class="stat-box">
+            <div class="stat-val">87<span>kg</span></div>
+            <div class="stat-lbl">Peso</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val">36</div>
+            <div class="stat-lbl">Anos</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val">4<span>x</span></div>
+            <div class="stat-lbl">Semanas</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="obj-banner">
+        <div class="obj-icon">🔥</div>
+        <div>
+          <div class="obj-title">Objetivo Principal</div>
+          <div class="obj-text">Ficar mais gostoso pra minha mulher 😎</div>
+        </div>
+      </div>
+
+      <div class="section-label">Medidas Iniciais</div>
+      <div class="measures-grid">
+        <div class="measure-card">
+          <div class="lbl">Bíceps (pico)</div>
+          <div class="val">40 <span class="unit">cm</span></div>
+        </div>
+        <div class="measure-card">
+          <div class="lbl">Bíceps (relaxado)</div>
+          <div class="val">36 <span class="unit">cm</span></div>
+        </div>
+        <div class="measure-card">
+          <div class="lbl">Abdômen</div>
+          <div class="val">94 <span class="unit">cm</span></div>
+        </div>
+        <div class="measure-card">
+          <div class="lbl">Quadril</div>
+          <div class="val">101 <span class="unit">cm</span></div>
+        </div>
+        <div class="measure-card" style="grid-column:1/-1">
+          <div class="lbl">Coxa</div>
+          <div class="val">61 <span class="unit">cm</span></div>
+        </div>
+      </div>
+
+      <div class="section-label">Exercícios — Progressão de Carga</div>
+      <div id="progression-container"></div>
+
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <div class="bnav-item active" id="bn-treino" onclick="goPage('treino')">
+      <div class="bnav-icon">⚡</div>
+      <div>Treino</div>
+    </div>
+    <div class="bnav-item" id="bn-avaliacao" onclick="goPage('avaliacao')">
+      <div class="bnav-icon">📊</div>
+      <div>Avaliação</div>
+    </div>
+    <div class="bnav-item" id="bn-guia" onclick="goPage('guia')">
+      <div class="bnav-icon">📖</div>
+      <div>Guia</div>
+    </div>
+    <div class="bnav-item" id="bn-perfil" onclick="goPage('perfil')">
+      <div class="bnav-icon">👤</div>
+      <div>Perfil</div>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════
+// DATA
+// ═══════════════════════════════════
+const TREINOS = {
+  A: {
+    name: 'Treino A — Peito · Ombro · Tríceps',
+    exercises: [
+      { id:'mob-a', name:'Mobilidade', series:'2 séries', rep:'45s', rest:'45s', intensity:'Leve', rpe:'leve', obj:'Articulações', load:false },
+      { id:'barra-a', name:'Barra', series:'3 séries', rep:'5 rep', rest:'1min', intensity:'Peso do corpo', rpe:'corpo', obj:'Fortalecimento global', load:false },
+      { id:'flexao', name:'Flexão', series:'3 séries', rep:'10 rep', rest:'1min', intensity:'Peso do corpo', rpe:'corpo', obj:'Peitoral · Core · Tríceps', load:false },
+      { id:'peekdeek', name:'Peekdeek', series:'3 séries', rep:'10 rep', rest:'2min', intensity:'RPE 8', rpe:'8', obj:'Isolamento e hipertrofia peitoral', load:true },
+      { id:'fly-inc', name:'Fly Inclinado', series:'3 séries', rep:'10 rep', rest:'2min', intensity:'RPE 7', rpe:'7', obj:'Ênfase na porção superior do peitoral', load:true },
+      { id:'supino-inc', name:'Supino Inclinado c/ Halter', series:'3 séries', rep:'10 rep', rest:'2min', intensity:'RPE 7', rpe:'7', obj:'Ganho de força e massa no peitoral superior', load:true },
+      { id:'desenv', name:'Desenvolvimento', series:'4 séries', rep:'10 rep', rest:'2min', intensity:'RPE 7', rpe:'7', obj:'Fortalecer ombros e estabilidade', load:true },
+      { id:'elev-lat', name:'Elevação Lateral na Polia', series:'3 séries', rep:'10 rep', rest:'2min', intensity:'RPE 7', rpe:'7', obj:'Hipertrofia deltoide lateral', load:true },
+      { id:'elev-arco', name:'Elevação Arco', series:'3 séries', rep:'10 rep', rest:'2min', intensity:'RPE 6', rpe:'6', obj:'Deltoide com amplitude controlada', load:true },
+      { id:'cruc-inv', name:'Crucifixo Inverso na Máquina', series:'4 séries', rep:'10 rep', rest:'2min', intensity:'RPE 8', rpe:'8', obj:'Fortalecer deltoide posterior e postura', load:true },
+      { id:'paralela', name:'Paralela', series:'3 séries', rep:'10 rep', rest:'1min', intensity:'Peso do corpo', rpe:'corpo', obj:'Desenvolver tríceps', load:false },
+      { id:'tri-franc', name:'Tríceps Francês', series:'3 séries', rep:'10 rep', rest:'2min', intensity:'RPE 7', rpe:'7', obj:'Isolamento da cabeça longa do tríceps', load:true },
+      { id:'pulley', name:'Pulley', series:'3 séries', rep:'10 rep', rest:'2min', intensity:'RPE 8', rpe:'8', obj:'Hipertrofia e resistência do tríceps', load:true },
+    ]
+  },
+  B: {
+    name: 'Treino B — Costas · Bíceps',
+    exercises: [
+      { id:'mob-b', name:'Mobilidade', series:'2 séries', rep:'45s', rest:'45s', intensity:'Leve', rpe:'leve', obj:'Articulações', load:false },
+      { id:'barra-b', name:'Barra', series:'3 séries', rep:'5 rep', rest:'1min', intensity:'Peso do corpo', rpe:'corpo', obj:'Fortalecimento global', load:false },
+      { id:'pulldown', name:'Pulldown', series:'4 séries', rep:'10 rep', rest:'2min', intensity:'RPE 7', rpe:'7', obj:'Ativação da dorsal', load:true },
+      { id:'puxada-ab', name:'Puxada Aberta', series:'3 séries', rep:'10 rep', rest:'2min', intensity:'RPE 8', rpe:'8', obj:'Desenvolver dorsais e aumentar largura', load:true },
+      { id:'rem-barr', name:'Remada Curvada com Barra', series:'3 séries', rep:'10 rep', rest:'2min', intensity:'RPE 8', rpe:'8', obj:'Ganho de espessura das costas', load:true },
+      { id:'rem-maq', name:'Remada Máquina Unilateral', series:'3 séries', rep:'10 rep', rest:'2min', intensity:'RPE 9', rpe:'9', obj:'Isolamento do miolo das costas', load:true },
+      { id:'facepull', name:'Facepull', series:'3 séries', rep:'10 rep', rest:'2min', intensity:'RPE 7', rpe:'7', obj:'Fortalecer manguito e melhorar postura', load:true },
+      { id:'ros-mart', name:'Rosca Martelo c/ Halter', series:'3 séries', rep:'10 rep', rest:'2min', intensity:'RPE 8', rpe:'8', obj:'Desenvolver braquial e antebraços', load:true },
+      { id:'bayesian', name:'Bayesian Curl', series:'3 séries', rep:'10 rep', rest:'2min', intensity:'RPE 7', rpe:'7', obj:'Alongar e hipertrofiar o bíceps', load:true },
+    ]
+  },
+  C: {
+    name: 'Treino C — Pernas',
+    exercises: [
+      { id:'mob-c', name:'Mobilidade', series:'2 séries', rep:'45s', rest:'45s', intensity:'Leve', rpe:'leve', obj:'Articulações', load:false },
+      { id:'barra-c', name:'Barra', series:'3 séries', rep:'5 rep', rest:'1min', intensity:'Peso do corpo', rpe:'corpo', obj:'Fortalecimento global', load:false },
+      { id:'agach-smith', name:'Agachamento Smith c/ Impulsão', series:'4 séries', rep:'10 rep', rest:'2min', intensity:'RPE 8', rpe:'8', obj:'Desenvolver quadríceps e potência', load:true },
+      { id:'bulgaro', name:'Búlgaro', series:'3 séries', rep:'10 rep', rest:'2min', intensity:'RPE 7', rpe:'7', obj:'Fortalecimento unilateral de pernas e glúteo', load:true },
+      { id:'mesa-flex', name:'Mesa Flexora Uni', series:'3 séries', rep:'10 rep', rest:'2min', intensity:'RPE 8', rpe:'8', obj:'Isolamento dos posteriores de coxa', load:true },
+      { id:'banco-rom', name:'Banco Romano', series:'3 séries', rep:'10 rep', rest:'2min', intensity:'RPE 7', rpe:'7', obj:'Fortalecer cadeia posterior / lombar', load:true },
+      { id:'passada', name:'Passada', series:'3 séries', rep:'40 rep', rest:'1min', intensity:'RPE 8', rpe:'8', obj:'Força e estabilidade unilateral / adutores', load:true },
+      { id:'pant-sent', name:'Panturrilha Sentado', series:'3 séries', rep:'15 rep', rest:'1min', intensity:'RPE 9', rpe:'9', obj:'Desenvolver sóleo', load:true },
+      { id:'pant-smith', name:'Panturrilha no Smith', series:'3 séries', rep:'15 rep', rest:'1min', intensity:'RPE 9', rpe:'9', obj:'Desenvolver força da panturrilha', load:true },
+    ]
+  },
+  D: {
+    name: 'Treino D — Full Body (Sábado)',
+    exercises: [
+      { id:'mob-perna', name:'Mobilidade de Perna c/ Band', series:'—', rep:'—', rest:'—', intensity:'Leve', rpe:'leve', obj:'Aquecimento e mobilidade de membros inferiores', load:false },
+    ],
+    note: 'Treino D à sua preferência — consulte seu personal para a sequência completa.'
+  }
+};
+
+const GUIDE = [
+  { name:'Mobilidade', como:'Realize movimentos lentos e controlados buscando amplitude sem compensação.', foco:'Articulações', erro:'Fazer rápido com pouca amplitude', dica:'Priorize qualidade do movimento, não velocidade.' },
+  { name:'Barra', como:'Segure o peso do corpo com escápulas ativas e controle o movimento.', foco:'Ativação das costas', erro:'Relaxar completamente os ombros', dica:'Pense em empurrar o peito pra cima — pegada na parte externa da mão.' },
+  { name:'Flexão', como:'Corpo alinhado, mãos na largura dos ombros, cotovelos levemente inclinados para trás.', foco:'Peitoral, tríceps e core', erro:'Encolher ombros / deixar o quadril cair / abrir demais os cotovelos', dica:'Core ativo. Inspira para subir, expira para descer encaixando o abdômen.' },
+  { name:'Peekdeek', como:'Banco posicionado onde a mão fica na altura do peito (linha do mamilo) — abrindo estufa peito e fechando esmaga peito.', foco:'Peitoral', erro:'Encolher os ombros / inclinar a cabeça / perder a postura', dica:'Faça uma pequena pausa na contração.' },
+  { name:'Fly Inclinado', como:'Abra os braços controlado e feche em arco.', foco:'Alongamento do peitoral superior', erro:'Dobrar excessivamente os cotovelos', dica:'Imagine abraçar um barril.' },
+  { name:'Supino Inclinado c/ Halter', como:'Empurre os halteres para cima mantendo o controle.', foco:'Peitoral superior e estabilidade', erro:'Perder a posição das escápulas', dica:'Mantenha o peito aberto.' },
+  { name:'Desenvolvimento', como:'Empurre os halteres para cima da cabeça e retorne até a mão ficar na altura do nariz. Braços voltados mais para diagonal.', foco:'Deltoides e estabilidade de ombros', erro:'Arquear excessivamente a lombar / abrir os braços para trás demais', dica:'Contraia o abdômen.' },
+  { name:'Elevação Lateral na Polia', como:'Com o corpo mais inclinado de lado, eleve os braços até altura do ombro.', foco:'Deltoide lateral', erro:'Encolher ombros', dica:'Inicie o movimento pelos cotovelos.' },
+  { name:'Elevação Arco', como:'Eleve os halteres em trajetória arqueada até próximo à altura dos ombros e retorne devagar (mãos com palma para fora).', foco:'Deltoide com maior amplitude', erro:'Excesso de carga e perda de técnica', dica:'Pense em desenhar um arco com as mãos.' },
+  { name:'Crucifixo Inverso na Máquina', como:'Mão pegada supinada na linha do ombro. Abrir os braços e levar até a linha das costas — segura 1-2 segundos e volta controladamente.', foco:'Deltoide posterior e parte alta das costas', erro:'Jogar o corpo para trás ou usar impulso', dica:'Mantenha tensão contínua durante toda a série.' },
+  { name:'Paralela', como:'Flexione os cotovelos e empurre o corpo para cima.', foco:'Tríceps com controle', erro:'Descer além da mobilidade', dica:'Evite balanços. Contraia o abdômen.' },
+  { name:'Tríceps Francês', como:'Flexione apenas os cotovelos atrás da cabeça e estenda.', foco:'Alongamento da cabeça longa do tríceps', erro:'Abrir demais os cotovelos', dica:'Mantenha os braços próximos à cabeça.' },
+  { name:'Pulley', como:'Coluna levemente inclinada. Movimento para baixo (não para o corpo) — desce em 3s, sobe em 3s controlado.', foco:'Contração completa do tríceps', erro:'Usar o tronco para gerar impulso', dica:'Separe a corda apenas na extensão final dos cotovelos.' },
+  { name:'Pulldown', como:'Coluna inclinada diagonal + longe da polia. Escápula encaixada e peito estufado. Puxa corda para baixo até a cintura. Volta controlada.', foco:'Latíssimo do dorso', erro:'Puxar com os braços / balançar o tronco / encolher os ombros', dica:'Pense em levar os cotovelos lá para trás.' },
+  { name:'Puxada Aberta', como:'Puxe a barra em direção à parte superior do peito, mantendo peito aberto e cotovelos para baixo voltados para fora.', foco:'Latíssimo do dorso', erro:'Puxar atrás da cabeça / balançar o corpo', dica:'Pense em aproximar os cotovelos do quadril esmagando as costas.' },
+  { name:'Remada Curvada com Barra', como:'Puxe a barra em direção ao abdômen mantendo tronco firme e cabeça alinhada.', foco:'Espessura das costas', erro:'Arredondar a lombar e impulsionar', dica:'Pense em esmagar as escápulas.' },
+  { name:'Remada Máquina Unilateral', como:'Mão na posição neutra. Peito estufado. Remar até o braço ficar na linha das costas.', foco:'Costas', erro:'Girar o tronco ou ultrapassar excessivamente a linha das costas', dica:'Mantenha o movimento controlado e concentre-se na escápula.' },
+  { name:'Facepull', como:'Puxe a corda em direção ao rosto com cotovelos altos.', foco:'Deltoide superior e manguito rotador', erro:'Abaixar os cotovelos abaixo do ombro', dica:'Finalize com rotação externa dos ombros.' },
+  { name:'Rosca Martelo c/ Halter', como:'Flexione os cotovelos com pegada neutra mantendo os braços próximos ao corpo.', foco:'Braquial e braquiorradial', erro:'Balançar o tronco e subir a carga com impulso', dica:'Movimento mais controlado.' },
+  { name:'Bayesian Curl', como:'Execute a rosca mantendo o braço levemente atrás do corpo.', foco:'Bíceps em posição alongada', erro:'Trazer o ombro para frente', dica:'Concentre-se em dobrar apenas o cotovelo.' },
+  { name:'Agachamento Smith c/ Impulsão', como:'Posicione a barra sobre os trapézios. Agache flexionando o joelho na sua confortável amplitude e retorne empurrando o chão até as pontas dos pés.', foco:'Quadríceps', erro:'Joelhos colapsando para dentro ou perder a postura', dica:'Mantenha o abdômen firme.' },
+  { name:'Búlgaro', como:'Apoie um pé atrás e desça até cerca de 90° no joelho da frente.', foco:'Quadríceps e glúteo', erro:'Perder estabilidade ou deixar o joelho colapsar para dentro', dica:'Incline levemente o tronco para aumentar a ativação dos glúteos.' },
+  { name:'Mesa Flexora Uni', como:'Flexione um joelho por vez com controle.', foco:'Posterior de coxa isolado', erro:'Tirar o quadril do banco', dica:'Desça lentamente.' },
+  { name:'Banco Romano', como:'Abaixe o tronco lentamente mantendo quadris alinhados e use os posteriores para controlar o movimento de subida e descida.', foco:'Fortalecimento excêntrico dos posteriores', erro:'Dobrar o quadril ou despencar na descida', dica:'Priorize o controle e contraia o glúteo.' },
+  { name:'Passada', como:'Dê um passo à frente e desça controlando o joelho traseiro próximo ao chão.', foco:'Força e estabilidade unilateral', erro:'Dobrar o quadril ou perder o equilíbrio', dica:'Core ativo e pisada firme.' },
+  { name:'Panturrilha Sentado', como:'Eleve os calcanhares ao máximo e desça lentamente.', foco:'Sóleo', erro:'Fazer o movimento curto', dica:'Use amplitude completa.' },
+  { name:'Panturrilha no Smith', como:'Empurre pelos dedos dos pés elevando o calcanhar e descendo na maior amplitude.', foco:'Gastrocnêmio', erro:'Executar rápido demais', dica:'Segure a contração no topo.' },
+];
+
+const PROGRESSION_EXERCISES = [
+  'Peekdeek','Fly inclinado','Supino inclinado c/ halter','Desenvolvimento','Elevação lateral na polia',
+  'Elevação arco','Crucifixo inverso na máquina','Paralela','Pulley','Pulldown','Puxada aberta',
+  'Remada com barra','Remada máquina unilateral','Facepull','Rosca banco 45','Bayesian curl',
+  'Agachamento Smith c/ impulsão','Agachamento taça c/ apoio no calcanhar','Elevação pélvica',
+  'Mesa flexora uni','Romanian Deadlifts','Passada','Panturrilha'
+];
+
+// ═══════════════════════════════════
+// STATE
+// ═══════════════════════════════════
+let currentPage = 'treino';
+let currentTreino = 'A';
+let currentWeek = 1;
+const MAX_WEEKS = 4;
+let state = JSON.parse(localStorage.getItem('diego-state') || '{}');
+
+function saveState() {
+  localStorage.setItem('diego-state', JSON.stringify(state));
+}
+
+function getKey(week, treino, exId) {
+  return `w${week}-${treino}-${exId}`;
+}
+
+// ═══════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════
+function goPage(page) {
+  currentPage = page;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach((t,i) => {
+    t.classList.toggle('active', ['treino','avaliacao','guia','perfil'][i] === page);
+  });
+  document.querySelectorAll('.bnav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('bn-' + page)?.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ═══════════════════════════════════
+// WEEK
+// ═══════════════════════════════════
+function changeWeek(d) {
+  currentWeek = Math.max(1, Math.min(MAX_WEEKS, currentWeek + d));
+  document.getElementById('week-display').textContent = 'Semana ' + currentWeek;
+  document.getElementById('prev-week').disabled = currentWeek === 1;
+  document.getElementById('next-week').disabled = currentWeek === MAX_WEEKS;
+  renderExercises();
+}
+
+// ═══════════════════════════════════
+// TREINO SELECTOR
+// ═══════════════════════════════════
+function selectTreino(t) {
+  currentTreino = t;
+  document.querySelectorAll('.treino-tab').forEach((el, i) => {
+    el.classList.toggle('active', ['A','B','C','D'][i] === t);
+  });
+  renderExercises();
+}
+
+// ═══════════════════════════════════
+// RENDER EXERCISES
+// ═══════════════════════════════════
+function rpeClass(rpe) {
+  if (rpe==='leve') return 'rpe-leve';
+  if (rpe==='corpo') return 'rpe-corpo';
+  return 'rpe-' + rpe;
+}
+
+function rpeLabel(rpe) {
+  if (rpe==='leve') return 'LEVE';
+  if (rpe==='corpo') return 'CORPORAL';
+  return 'RPE ' + rpe;
+}
+
+function renderExercises() {
+  const treino = TREINOS[currentTreino];
+  const container = document.getElementById('exercises-container');
+  let html = `<div style="font-size:12px;color:var(--text-2);margin-bottom:16px;font-weight:500">${treino.name}</div>`;
+
+  if (treino.note) {
+    html += `<div class="eval-card"><div style="font-size:13px;color:var(--text-2);line-height:1.6">📌 ${treino.note}</div></div>`;
+  }
+
+  treino.exercises.forEach(ex => {
+    const key = getKey(currentWeek, currentTreino, ex.id);
+    const data = state[key] || {};
+    const done = data.done || false;
+    const load = data.load || '';
+    const obs = data.obs || '';
+    const isMob = ex.id.startsWith('mob-') || ex.id.startsWith('barra-');
+
+    // count series
+    const seriesMatch = ex.series.match(/(\d+)/);
+    const numSeries = seriesMatch ? parseInt(seriesMatch[1]) : 0;
+    const doneSeries = data.series || [];
+
+    html += `
+    <div class="exercise-card ${done?'done':''} ${isMob?'mobilidade':''}" id="card-${ex.id}">
+      <div class="ex-header" onclick="toggleCard('${ex.id}')">
+        <div class="ex-check" onclick="event.stopPropagation();toggleDone('${ex.id}')">${done?'✓':''}</div>
+        <div class="ex-info">
+          <div class="ex-name">${ex.name}</div>
+          <div class="ex-meta">${ex.series} · ${ex.rep} · ${ex.rest} descanso</div>
+        </div>
+        <div class="ex-rpe ${rpeClass(ex.rpe)}">${rpeLabel(ex.rpe)}</div>
+        <div class="ex-expand">▼</div>
+      </div>
+      <div class="ex-body">
+        <div class="ex-tip-row">
+          <div class="ex-tip">
+            <div class="ex-tip-lbl">Objetivo</div>
+            <div class="ex-tip-val">${ex.obj}</div>
+          </div>
+          <div class="ex-tip">
+            <div class="ex-tip-lbl">Intensidade</div>
+            <div class="ex-tip-val accent">${ex.intensity}</div>
+          </div>
+        </div>
+        ${ex.load ? `
+        <div class="load-section">
+          <div class="load-label">Carga utilizada</div>
+          <div class="load-row">
+            <input class="load-input" type="number" placeholder="Ex: 12.5" value="${load}"
+              onchange="setLoad('${ex.id}', this.value)" inputmode="decimal">
+            <div class="load-unit">kg</div>
+          </div>
+        </div>
+        ` : ''}
+        ${numSeries > 0 ? `
+        <div style="margin-top:12px">
+          <div class="load-label">Séries concluídas</div>
+          <div class="series-row">
+            ${Array.from({length:numSeries},(_,i)=>`
+              <div class="serie-badge ${doneSeries.includes(i)?'done-s':''}" onclick="toggleSerie('${ex.id}',${i},'${key}')">Série ${i+1}</div>
+            `).join('')}
+          </div>
+        </div>
+        ` : ''}
+        <textarea class="obs-input" placeholder="Observações..." onchange="setObs('${ex.id}', this.value)">${obs}</textarea>
+      </div>
+    </div>`;
+  });
+
+  container.innerHTML = html;
+  updateProgress();
+}
+
+function toggleCard(id) {
+  const card = document.getElementById('card-' + id);
+  card.classList.toggle('open');
+}
+
+function toggleDone(id) {
+  const key = getKey(currentWeek, currentTreino, id);
+  if (!state[key]) state[key] = {};
+  state[key].done = !state[key].done;
+  saveState();
+  renderExercises();
+  // keep open
+}
+
+function setLoad(id, val) {
+  const key = getKey(currentWeek, currentTreino, id);
+  if (!state[key]) state[key] = {};
+  state[key].load = val;
+  saveState();
+}
+
+function setObs(id, val) {
+  const key = getKey(currentWeek, currentTreino, id);
+  if (!state[key]) state[key] = {};
+  state[key].obs = val;
+  saveState();
+}
+
+function toggleSerie(id, idx, key) {
+  if (!state[key]) state[key] = {};
+  let s = state[key].series || [];
+  if (s.includes(idx)) s = s.filter(x=>x!==idx);
+  else s = [...s, idx];
+  state[key].series = s;
+  saveState();
+  renderExercises();
+}
+
+function updateProgress() {
+  const treino = TREINOS[currentTreino];
+  const total = treino.exercises.length;
+  const done = treino.exercises.filter(ex => {
+    const key = getKey(currentWeek, currentTreino, ex.id);
+    return state[key]?.done;
+  }).length;
+  const pct = total ? Math.round(done/total*100) : 0;
+  document.getElementById('prog-pct').textContent = pct + '%';
+  document.getElementById('prog-bar').style.width = pct + '%';
+}
+
+// ═══════════════════════════════════
+// AVALIAÇÃO
+// ═══════════════════════════════════
+function renderEval() {
+  const container = document.getElementById('eval-weeks-container');
+  let html = '';
+  for (let w=1; w<=4; w++) {
+    const wkey = 'eval-w' + w;
+    const data = state[wkey] || {};
+    html += `
+    <div class="eval-card">
+      <div class="eval-week-label">Semana ${w}</div>
+      <div class="eval-grid">
+        ${renderEvalField(w,'freq','Frequência',['1x','2x','3x','4x','5x+'], data.freq)}
+        ${renderEvalField(w,'humor','Humor',['😞 Baixo','😐 Ok','😊 Bom','🔥 Ótimo'], data.humor)}
+        ${renderEvalField(w,'energia','Energia',['😴 Baixa','😐 Ok','⚡ Alta','🚀 Máxima'], data.energia)}
+        ${renderEvalField(w,'dific','Dificuldade',['Muito fácil','Adequada','Difícil','Muito difícil'], data.dific)}
+        ${renderEvalField(w,'dor','Dor ou desconforto',['Nenhuma','Leve','Moderada','Intensa'], data.dor)}
+        ${renderEvalField(w,'sono','Sono',['Ruim','Regular','Bom','Excelente'], data.sono)}
+        ${renderEvalField(w,'alim','Alimentação',['Ruim','Regular','Boa','Excelente'], data.alim)}
+        <div class="eval-field eval-obs">
+          <label>Observações gerais</label>
+          <textarea onchange="saveEval(${w},'obs',this.value)" placeholder="Anotações, sensações...">${data.obs||''}</textarea>
+        </div>
+      </div>
+    </div>`;
+  }
+  container.innerHTML = html;
+}
+
+function renderEvalField(week, field, label, opts, val) {
+  const options = opts.map(o => `<option value="${o}" ${val===o?'selected':''}>${o}</option>`).join('');
+  return `
+    <div class="eval-field">
+      <label>${label}</label>
+      <select class="eval-select" onchange="saveEval(${week},'${field}',this.value)">
+        <option value="">—</option>
+        ${options}
+      </select>
+    </div>`;
+}
+
+function saveEval(week, field, val) {
+  const wkey = 'eval-w' + week;
+  if (!state[wkey]) state[wkey] = {};
+  state[wkey][field] = val;
+  saveState();
+  showToast('Salvo ✓');
+}
+
+// ═══════════════════════════════════
+// GUIA
+// ═══════════════════════════════════
+function renderGuide() {
+  const container = document.getElementById('guide-container');
+  let html = '';
+  GUIDE.forEach((g, i) => {
+    html += `
+    <div class="guide-card" id="guide-${i}">
+      <div class="guide-header" onclick="toggleGuide(${i})">
+        <div class="guide-name">${g.name}</div>
+        <div class="guide-chevron">▼</div>
+      </div>
+      <div class="guide-body">
+        <div class="guide-row">
+          <div class="guide-row-lbl">Como fazer</div>
+          <div class="guide-row-val">${g.como}</div>
+        </div>
+        <div class="guide-row">
+          <div class="guide-row-lbl">Foco muscular</div>
+          <div class="guide-row-val highlight">${g.foco}</div>
+        </div>
+        <div class="guide-row">
+          <div class="guide-row-lbl">Erro comum</div>
+          <div class="guide-row-val" style="color:var(--danger)">${g.erro}</div>
+        </div>
+        <div class="guide-row">
+          <div class="guide-row-lbl">Dica prática</div>
+          <div class="guide-row-val" style="color:var(--accent)">${g.dica}</div>
+        </div>
+      </div>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+function toggleGuide(i) {
+  document.getElementById('guide-' + i).classList.toggle('open');
+}
+
+// ═══════════════════════════════════
+// PROGRESSÃO (perfil)
+// ═══════════════════════════════════
+function renderProgression() {
+  const container = document.getElementById('progression-container');
+  let html = '';
+  PROGRESSION_EXERCISES.forEach(name => {
+    const pkey = 'prog-' + name.toLowerCase().replace(/\s+/g,'-');
+    const data = state[pkey] || {};
+    html += `
+    <div class="eval-card" style="margin-bottom:10px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--text)">${name}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div>
+          <div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Peso Inicial</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input class="load-input" type="number" placeholder="kg" value="${data.ini||''}" 
+              onchange="saveProgression('${pkey}','ini',this.value)" inputmode="decimal" style="font-size:14px">
+          </div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Progressão</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input class="load-input" type="number" placeholder="kg" value="${data.prog||''}" 
+              onchange="saveProgression('${pkey}','prog',this.value)" inputmode="decimal" style="font-size:14px;border-color:var(--accent)">
+          </div>
+        </div>
+      </div>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+function saveProgression(pkey, field, val) {
+  if (!state[pkey]) state[pkey] = {};
+  state[pkey][field] = val;
+  saveState();
+}
+
+// ═══════════════════════════════════
+// TOAST
+// ═══════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ═══════════════════════════════════
+// INIT
+// ═══════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    document.getElementById('splash').classList.add('hide');
+    document.getElementById('app').classList.add('visible');
+    renderExercises();
+    renderEval();
+    renderGuide();
+    renderProgression();
+    document.getElementById('prev-week').disabled = true;
+  }, 1600);
+});
+</script>
+</body>
+</html>
